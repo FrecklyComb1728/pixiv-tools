@@ -1,0 +1,55 @@
+<Window x:Class="PixivTools.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="登录 Pixiv" Width="840" Height="640" WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResizeWithGrip" MinWidth="560" MinHeight="460"
+        Background="{StaticResource BgBrush}" FontFamily="{StaticResource Font}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="16,12">
+            <StackPanel>
+                <TextBlock Text="登录 Pixiv" FontSize="18" FontWeight="SemiBold" Foreground="White"/>
+                <TextBlock Text="登录后自动捕获 Cookie" FontSize="12" Margin="0,4,0,0" Foreground="#CCFFFFFF"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" CornerRadius="6"
+                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Margin="12">
+            <Grid>
+                <wv2:WebView2 x:Name="WebView" Source="https://accounts.pixiv.net/login?lang=zh"/>
+                <Border x:Name="LoadingOverlay" Background="{StaticResource SurfaceBrush}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ProgressBar IsIndeterminate="True" Width="100" Height="3" Margin="0,0,0,12"/>
+                        <TextBlock Text="加载中..." FontSize="12" HorizontalAlignment="Center"
+                                  Foreground="{StaticResource Text2Brush}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Background="{StaticResource SurfaceBrush}" CornerRadius="6"
+                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Margin="12,0,12,12" Padding="10,8">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <ProgressBar x:Name="WaitRing" IsIndeterminate="True" Width="14" Height="14"
+                                Foreground="{StaticResource PrimaryBrush}" Margin="0,0,6,0"/>
+                    <TextBlock x:Name="StatusText" Text="等待登录..." FontSize="12"
+                              Foreground="{StaticResource Text2Brush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="重新加载" Click="OnReloadClick" Style="{StaticResource Btn2}"
+                            Height="26" Margin="0,0,6,0" FontSize="11"/>
+                    <Button Content="手动完成" Click="OnManualCompleteClick" Style="{StaticResource Btn}"
+                            Height="26" FontSize="11"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

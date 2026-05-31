@@ -1,0 +1,94 @@
+<UserControl x:Class="PixivTools.Views.PidSearchTab"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:PixivTools.Controls">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 查询栏 -->
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" CornerRadius="6"
+                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Padding="12" Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="PID" VerticalAlignment="Center"
+                          Foreground="{StaticResource Text2Brush}" FontSize="12" Margin="0,0,8,0"/>
+                <TextBox Grid.Column="1" x:Name="PidInput"
+                        Text="{Binding Pid, UpdateSourceTrigger=PropertyChanged}"
+                        Margin="0,0,8,0" FontSize="13"/>
+
+                <CheckBox Grid.Column="2" Content="多图" IsChecked="{Binding IsMultiPage}"
+                         VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12"/>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,8,0">
+                    <TextBlock Text="页" VerticalAlignment="Center" FontSize="12"
+                              Foreground="{StaticResource Text2Brush}" Margin="0,0,4,0"/>
+                    <TextBox Text="{Binding Page, UpdateSourceTrigger=PropertyChanged}"
+                            Width="40" FontSize="12" Padding="4,4"
+                            IsEnabled="{Binding IsMultiPage}"/>
+                </StackPanel>
+
+                <Button Grid.Column="4" Content="查询" Command="{Binding SubmitCommand}"
+                        Style="{StaticResource Btn}" Width="56" Height="28"/>
+            </Grid>
+        </Border>
+
+        <!-- 图片预览 -->
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" CornerRadius="6"
+                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <controls:ImagePreview Source="{Binding ImageSource}"
+                                      PlaceholderText="{Binding StatusText}"
+                                      IsLoading="{Binding IsLoading}"/>
+
+                <!-- 多图翻页栏 -->
+                <Border Grid.Row="0" VerticalAlignment="Bottom" Margin="8"
+                        Background="#99000000" CornerRadius="4" Padding="6,4"
+                        Visibility="{Binding IsMultiPage, Converter={StaticResource BoolToVisConverter}}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="&lt;" Command="{Binding PrevPageCommand}"
+                                Style="{StaticResource Btn2}" Width="24" Height="22" Padding="0"
+                                IsEnabled="{Binding HasPrevPage}" FontSize="11"/>
+                        <TextBlock Text="{Binding PageIndicator}" VerticalAlignment="Center"
+                                  Foreground="White" FontSize="11" Margin="8,0"/>
+                        <Button Content="&gt;" Command="{Binding NextPageCommand}"
+                                Style="{StaticResource Btn2}" Width="24" Height="22" Padding="0"
+                                IsEnabled="{Binding HasNextPage}" FontSize="11"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Background="{StaticResource HoverBrush}" Padding="8,6"
+                        CornerRadius="0,0,5,5" BorderThickness="0,1,0,0"
+                        BorderBrush="{StaticResource BorderBrush}">
+                    <TextBlock Text="{Binding StatusText}" FontSize="11"
+                              Foreground="{StaticResource Text2Brush}" TextTrimming="CharacterEllipsis"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 操作栏 -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+            <Button Content="打开" Command="{Binding OpenPictureCommand}" IsEnabled="{Binding HasImage}"
+                    Style="{StaticResource Btn2}" Width="60" Height="26" Margin="0,0,4,0" FontSize="11"/>
+            <Button Content="保存" Command="{Binding SavePictureCommand}" IsEnabled="{Binding HasImage}"
+                    Style="{StaticResource Btn}" Width="60" Height="26" Margin="0,0,4,0" FontSize="11"/>
+            <Button Content="刷新" Command="{Binding ReloadPictureCommand}" IsEnabled="{Binding HasImage}"
+                    Style="{StaticResource Btn2}" Width="60" Height="26" FontSize="11"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

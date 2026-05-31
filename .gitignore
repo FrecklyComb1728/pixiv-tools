@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+*.suo
+.vs/
+_pixivtools_/
+History_rec.txt
+log.txt
+settings.json
+crash.log
+*.tmp

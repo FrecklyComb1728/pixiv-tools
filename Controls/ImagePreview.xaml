@@ -1,0 +1,29 @@
+<UserControl x:Class="PixivTools.Controls.ImagePreview"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border Background="{StaticResource BgBrush}" CornerRadius="5">
+        <Grid>
+            <Image x:Name="MainImage" Source="{Binding Source, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                  MouseWheel="OnMouseWheel" MouseLeftButtonDown="OnMouseLeftButtonDown"
+                  MouseLeftButtonUp="OnMouseLeftButtonUp" MouseMove="OnMouseMove">
+                <Image.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="ScaleTransform" ScaleX="1" ScaleY="1"/>
+                        <TranslateTransform x:Name="TranslateTransform" X="0" Y="0"/>
+                    </TransformGroup>
+                </Image.LayoutTransform>
+            </Image>
+
+            <ProgressBar x:Name="LoadingBar" IsIndeterminate="True" Height="3"
+                        VerticalAlignment="Top" Visibility="Collapsed"/>
+
+            <TextBlock x:Name="Placeholder"
+                      Text="{Binding PlaceholderText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                      TextAlignment="Center" TextWrapping="Wrap"
+                      FontSize="13" Foreground="{StaticResource Text3Brush}" Visibility="Visible"/>
+        </Grid>
+    </Border>
+</UserControl>
