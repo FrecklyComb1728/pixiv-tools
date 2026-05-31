@@ -21,6 +21,7 @@ public partial class MainWindow : Window
         _pages["randomPic"] = sp.GetRequiredService<RandomPicTab>();
         _pages["batchDownload"] = sp.GetRequiredService<BatchDownloadTab>();
         _pages["settings"] = sp.GetRequiredService<SettingsTab>();
+        _pages["gallery"] = sp.GetRequiredService<GalleryTab>();
         _pages["about"] = new AboutTab();
 
         PageHost.Content = _pages["pidSearch"];
@@ -40,7 +41,7 @@ public partial class MainWindow : Window
     private void OnNavSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox lb || lb.SelectedIndex < 0) return;
-        var tag = lb.SelectedIndex switch { 0 => "pidSearch", 1 => "randomPic", 2 => "batchDownload", 3 => "settings", 4 => "about", _ => null };
+        var tag = lb.SelectedIndex switch { 0 => "pidSearch", 1 => "randomPic", 2 => "batchDownload", 3 => "settings", 4 => "gallery", 5 => "about", _ => null };
         if (tag != null && _pages.TryGetValue(tag, out var page))
             PageHost.Content = page;
     }

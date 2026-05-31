@@ -98,9 +98,10 @@ public class PixivApiService : IDisposable
         catch (Exception ex) { _logger.LogError(ex, "下载图片异常 Url={Url}", url); return null; }
     }
 
-    public async Task<(int Success, int Fail)> DownloadUrlsAsync(List<string> urls, string destDir)
+    public async Task<(int Success, int Fail)> DownloadUrlsAsync(List<string> urls, string destDir, string pid = "")
     {
         var suc = 0; var fail = 0;
+        var subDir = string.IsNullOrEmpty(pid) ? destDir : Path.Combine(destDir, pid);
         foreach (var url in urls)
         {
             using var resp = await DownloadImageAsync(url);
@@ -112,10 +113,10 @@ public class PixivApiService : IDisposable
                 var uri = new Uri(url);
                 var name = Path.GetFileName(uri.AbsolutePath);
                 if (string.IsNullOrEmpty(name) || name == "/") name = $"{Guid.NewGuid()}.jpg";
-                var path = Path.Combine(destDir, name);
+                var path = Path.Combine(subDir, name);
                 if (!File.Exists(path))
                 {
-                    Directory.CreateDirectory(destDir);
+                    Directory.CreateDirectory(subDir);
                     var bytes = await resp.Content.ReadAsByteArrayAsync();
                     await File.WriteAllBytesAsync(path, bytes);
                 }
@@ -232,6 +233,38 @@ public class PixivApiService : IDisposable
             return result;
         }
         catch (HttpRequestException ex) { _logger.LogError(ex, "随机图网络错误"); throw; }
+    }
+
+    public async Task<List<string>> FetchUserArtworksAsync(string userId)
+    {
+        try
+        {
+            var url = $"https://www.pixiv.net/ajax/user/{userId}/profile/all?lang=zh";
+            var req = new HttpRequestMessage(HttpMethod.Get, url);
+            req.Headers.Add("Host", "www.pixiv.net");
+            req.Headers.Add("User-Agent", ChromeUA);
+            req.Headers.Add("Accept", "application/json");
+            var cookie = _config.Cookie;
+            if (!string.IsNullOrWhiteSpace(cookie)) req.Headers.Add("Cookie", cookie);
+
+            var resp = await _client.SendAsync(req);
+            if (resp.StatusCode != HttpStatusCode.OK) return new();
+            var content = await resp.Content.ReadAsStringAsync();
+
+            using var doc = JsonDocument.Parse(content);
+            if (!doc.RootElement.TryGetProperty("body", out var body)) return new();
+            if (!body.TryGetProperty("illusts", out var illusts)) return new();
+
+            var pids = new List<string>();
+            foreach (var prop in illusts.EnumerateObject())
+            {
+                if (prop.Value.ValueKind == JsonValueKind.Null) continue;
+                pids.Add(prop.Name);
+            }
+            _logger.LogInformation("用户 {UserId} 共 {Count} 个作品", userId, pids.Count);
+            return pids;
+        }
+        catch (Exception ex) { _logger.LogError(ex, "获取用户作品失败"); return new(); }
     }
 
     public void Dispose() { _client?.Dispose(); _handler?.Dispose(); }

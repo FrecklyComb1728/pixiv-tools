@@ -18,14 +18,16 @@ public partial class BatchDownloadViewModel : ObservableObject
 {
     private readonly PixivApiService _api;
     private readonly ConfigService _config;
+    private readonly ArtworkDatabase _db;
     private readonly ILogger<BatchDownloadViewModel> _logger;
 
-    public BatchDownloadViewModel(PixivApiService api, ConfigService config, ILogger<BatchDownloadViewModel> logger)
+    public BatchDownloadViewModel(PixivApiService api, ConfigService config, ArtworkDatabase db, ILogger<BatchDownloadViewModel> logger)
     {
-        _api = api; _config = config; _logger = logger;
+        _api = api; _config = config; _db = db; _logger = logger;
     }
 
     [ObservableProperty] private string _inputPid = "";
+    [ObservableProperty] private string _userId = "";
     [ObservableProperty] private ObservableCollection<DownloadItem> _items = new();
     [ObservableProperty] private int _progressValue;
     [ObservableProperty] private string _statusText = "就绪";
@@ -48,6 +50,22 @@ public partial class BatchDownloadViewModel : ObservableObject
     [RelayCommand] private void ClearAll() { Items.Clear(); DownloadStats = ""; }
 
     [RelayCommand]
+    private async Task FetchUserAsync()
+    {
+        if (string.IsNullOrWhiteSpace(UserId)) return;
+        StatusText = $"正在获取用户 {UserId} 的作品...";
+        try
+        {
+            var pids = await _api.FetchUserArtworksAsync(UserId);
+            foreach (var pid in pids)
+                if (!Items.Any(i => i.Pid == pid))
+                    Items.Add(new DownloadItem { Pid = pid });
+            StatusText = $"已添加 {pids.Count} 个作品";
+        }
+        catch { StatusText = "获取失败"; }
+    }
+
+    [RelayCommand]
     private async Task StartDownloadAsync()
     {
         var toDownload = Items.Where(i => i.IsSelected).ToList();
@@ -67,8 +85,12 @@ public partial class BatchDownloadViewModel : ObservableObject
             {
                 var urls = await _api.FetchImageUrlsAsync(item.Pid);
                 if (urls.Count == 0) { item.Status = "失败"; failCount++; continue; }
-                var (suc, _) = await _api.DownloadUrlsAsync(urls, dest);
-                if (suc > 0) { item.Status = "成功"; successCount += suc; } else { item.Status = "失败"; failCount++; }
+                var (suc, _) = await _api.DownloadUrlsAsync(urls, dest, item.Pid);
+                if (suc > 0) { item.Status = "成功"; successCount += suc;
+                    var firstFile = Directory.Exists(Path.Combine(dest, item.Pid)) 
+                        ? Directory.GetFiles(Path.Combine(dest, item.Pid)).FirstOrDefault() : null;
+                    _db.Insert(new Models.ArtworkRecord { Pid = item.Pid, PageCount = urls.Count, FilePath = firstFile ?? Path.Combine(dest, item.Pid) }); }
+                else { item.Status = "失败"; failCount++; }
             }
             catch (Exception ex) { _logger.LogError(ex, "下载PID {Pid} 异常", item.Pid); item.Status = "失败"; failCount++; }
             ProgressValue = 100 * (i + 1) / total;

@@ -1,0 +1,116 @@
+<UserControl x:Class="PixivTools.Views.GalleryTab"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" CornerRadius="6"
+                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Padding="10" Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="类型" VerticalAlignment="Center" FontSize="12" Margin="0,0,4,0" Foreground="{StaticResource Text2Brush}"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding SearchTypes}" SelectedItem="{Binding SearchType}" FontSize="11" Padding="2,2"/>
+                <TextBlock Grid.Column="2" Text="搜索" VerticalAlignment="Center" FontSize="12" Margin="10,0,4,0" Foreground="{StaticResource Text2Brush}"/>
+                <TextBox Grid.Column="3" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" FontSize="11" Padding="4,4"/>
+                <TextBlock Grid.Column="4" Text="排序" VerticalAlignment="Center" FontSize="12" Margin="10,0,4,0" Foreground="{StaticResource Text2Brush}"/>
+                <ComboBox Grid.Column="5" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SortBy}" FontSize="11" Padding="2,2"/>
+                <Button Grid.Column="7" Content="搜索" Command="{Binding SearchCommand}" Style="{StaticResource Btn}" Width="56" Height="26" Margin="8,0,0,0" FontSize="11"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" CornerRadius="6"
+                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="{StaticResource HoverBrush}" Padding="8,6"
+                        CornerRadius="6,6,0,0" BorderThickness="0,0,0,1" BorderBrush="{StaticResource BorderBrush}">
+                    <TextBlock Text="{Binding PageInfo}" FontSize="11" Foreground="{StaticResource Text2Brush}"/>
+                </Border>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="4">
+                    <ItemsControl ItemsSource="{Binding Items}">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="168" Margin="4" Background="{StaticResource BgBrush}" CornerRadius="6"
+                                        BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
+                                        MouseLeftButtonDown="OnCardClick" Tag="{Binding Pid}"
+                                        Cursor="Hand" ToolTip="{Binding FilePath}">
+                                    <StackPanel>
+                                        <Border Height="148" Background="{StaticResource BorderBrush}" CornerRadius="6,6,0,0">
+                                            <Grid>
+                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" Width="166" Height="146" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="无缩略图" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                          Foreground="{StaticResource Text3Brush}"
+                                                          Visibility="{Binding Thumbnail, Converter={StaticResource NullToVisConverter}, ConverterParameter=invert}"/>
+                                            </Grid>
+                                        </Border>
+                                        <StackPanel Margin="6,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                <TextBlock FontWeight="SemiBold" FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="128"
+                                                           Foreground="{StaticResource PrimaryBrush}" Text="{Binding Pid, StringFormat='PID:{0}'}"/>
+                                                <Button Grid.Column="1" Content="✕" Width="18" Height="18" Padding="0"
+                                                        Tag="{Binding Pid}" Click="OnDeleteClick" Style="{StaticResource Btn2}" FontSize="9"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding Title}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="154" Margin="0,1,0,0"/>
+                                            <TextBlock Text="{Binding Author}" FontSize="9" Foreground="{StaticResource Text2Brush}" Margin="0,1,0,0" TextTrimming="CharacterEllipsis" MaxWidth="154"/>
+                                            <TextBlock Text="{Binding DownloadedAt, StringFormat='{}{0:MM-dd HH:mm}'}" FontSize="9" Foreground="{StaticResource Text3Brush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Button Content="上一页" Command="{Binding PrevPageCommand}" Style="{StaticResource Btn2}" Width="60" Height="24" Margin="0,0,4,0" FontSize="11"/>
+            <Button Content="下一页" Command="{Binding NextPageCommand}" Style="{StaticResource Btn2}" Width="60" Height="24" FontSize="11"/>
+        </StackPanel>
+
+        <!-- 多图预览浮层 -->
+        <Border x:Name="PreviewOverlay" Background="#CC000000" Grid.RowSpan="3"
+                Visibility="{Binding IsPreviewOpen, Converter={StaticResource BoolToVisConverter}}"
+                MouseLeftButtonDown="OnPreviewBgClick">
+            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8"
+                    BorderThickness="1" BorderBrush="{StaticResource BorderBrush}"
+                    MaxWidth="900" MaxHeight="620" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{StaticResource HoverBrush}" Padding="10,8" CornerRadius="8,8,0,0"
+                            BorderThickness="0,0,0,1" BorderBrush="{StaticResource BorderBrush}">
+                        <Grid>
+                            <TextBlock Text="{Binding PreviewTitle}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <Button Content="✕" HorizontalAlignment="Right" Width="28" Height="28" Padding="0"
+                                    Command="{Binding ClosePreviewCommand}" Style="{StaticResource Btn2}" FontSize="14"/>
+                        </Grid>
+                    </Border>
+                    <Image Grid.Row="1" Source="{Binding PreviewCurrent}" Stretch="Uniform" Margin="8"/>
+                    <Border Grid.Row="2" Background="{StaticResource HoverBrush}" Padding="8,6" CornerRadius="0,0,8,8"
+                            BorderThickness="0,1,0,0" BorderBrush="{StaticResource BorderBrush}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="⟨" Command="{Binding PrevPreviewCommand}" IsEnabled="{Binding HasPrevPreview}"
+                                    Style="{StaticResource Btn2}" Width="36" Height="28" Padding="0" FontSize="18" Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding PreviewIndicator}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"
+                                      Foreground="{StaticResource Text2Brush}"/>
+                            <Button Content="⟩" Command="{Binding NextPreviewCommand}" IsEnabled="{Binding HasNextPreview}"
+                                    Style="{StaticResource Btn2}" Width="36" Height="28" Padding="0" FontSize="18"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

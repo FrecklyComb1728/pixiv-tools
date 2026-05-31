@@ -9,18 +9,28 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0" Background="{StaticResource SurfaceBrush}" CornerRadius="6"
-                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Padding="10" Margin="0,0,0,8">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="PID" VerticalAlignment="Center" FontSize="12"
-                          Foreground="{StaticResource Text2Brush}" Margin="0,0,6,0"/>
-                <TextBox Text="{Binding InputPid, UpdateSourceTrigger=PropertyChanged}"
-                        Width="180" FontSize="12" Padding="6,4" Margin="0,0,6,0"/>
-                <Button Content="+" Command="{Binding AddPidCommand}" Style="{StaticResource Btn}"
-                        Width="28" Height="26" Padding="0" FontSize="14" Margin="0,0,4,0"/>
-                <Button Content="-" Command="{Binding DeleteSelectedCommand}" Style="{StaticResource Btn2}"
-                        Width="28" Height="26" Padding="0" FontSize="14" Margin="0,0,4,0"/>
-                <Button Content="X" Command="{Binding ClearAllCommand}" Style="{StaticResource Btn2}"
-                        Width="28" Height="26" Padding="0" FontSize="12"/>
+                BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Padding="10" Margin="0,0,0,6">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="PID" VerticalAlignment="Center" FontSize="12"
+                              Foreground="{StaticResource Text2Brush}" Margin="0,0,6,0"/>
+                    <TextBox Text="{Binding InputPid, UpdateSourceTrigger=PropertyChanged}"
+                            Width="180" FontSize="12" Padding="6,4" Margin="0,0,6,0"/>
+                    <Button Content="+" Command="{Binding AddPidCommand}" Style="{StaticResource Btn}"
+                            Width="28" Height="26" Padding="0" FontSize="14" Margin="0,0,4,0"/>
+                    <Button Content="-" Command="{Binding DeleteSelectedCommand}" Style="{StaticResource Btn2}"
+                            Width="28" Height="26" Padding="0" FontSize="14" Margin="0,0,4,0"/>
+                    <Button Content="X" Command="{Binding ClearAllCommand}" Style="{StaticResource Btn2}"
+                            Width="28" Height="26" Padding="0" FontSize="12"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <TextBlock Text="UID" VerticalAlignment="Center" FontSize="12"
+                              Foreground="{StaticResource Text2Brush}" Margin="0,0,6,0"/>
+                    <TextBox Text="{Binding UserId, UpdateSourceTrigger=PropertyChanged}"
+                            Width="180" FontSize="12" Padding="6,4" Margin="0,0,6,0"/>
+                    <Button Content="获取作品" Command="{Binding FetchUserCommand}"
+                            Style="{StaticResource Btn}" Height="26" FontSize="11"/>
+                </StackPanel>
             </StackPanel>
         </Border>
 

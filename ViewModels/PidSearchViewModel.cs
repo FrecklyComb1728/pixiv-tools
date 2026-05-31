@@ -15,11 +15,12 @@ public partial class PidSearchViewModel : ObservableObject
     private readonly PixivApiService _api;
     private readonly ConfigService _config;
     private readonly ImageCacheService _cache;
+    private readonly ArtworkDatabase _db;
     private readonly ILogger<PidSearchViewModel> _logger;
 
-    public PidSearchViewModel(PixivApiService api, ConfigService config, ImageCacheService cache, ILogger<PidSearchViewModel> logger)
+    public PidSearchViewModel(PixivApiService api, ConfigService config, ImageCacheService cache, ArtworkDatabase db, ILogger<PidSearchViewModel> logger)
     {
-        _api = api; _config = config; _cache = cache; _logger = logger;
+        _api = api; _config = config; _cache = cache; _db = db; _logger = logger;
     }
 
     [ObservableProperty] private string _pid = "";
@@ -75,7 +76,7 @@ public partial class PidSearchViewModel : ObservableObject
 
         var tempDir = Path.Combine(Path.GetTempPath(), "PixivTools");
         Directory.CreateDirectory(tempDir);
-        _ = Task.Run(async () => { try { await _api.DownloadUrlsAsync(_allUrls, tempDir); } catch { } });
+        _ = Task.Run(async () => { try { await _api.DownloadUrlsAsync(_allUrls, tempDir, Pid); } catch { } });
 
         if (_config.Remember) HistoryService.Append(Pid, IsMultiPage, Page);
 
@@ -122,9 +123,10 @@ public partial class PidSearchViewModel : ObservableObject
                 _cache.Put(url, data);
             }
 
-            Directory.CreateDirectory(Path.GetTempPath() + "PixivTools");
+            var pidDir = Path.Combine(Path.GetTempPath(), "PixivTools", Pid);
+            Directory.CreateDirectory(pidDir);
             var uri = new Uri(url); var name = Path.GetFileName(uri.AbsolutePath);
-            localPath = Path.Combine(Path.GetTempPath(), "PixivTools", name);
+            localPath = Path.Combine(pidDir, name);
             if (!File.Exists(localPath)) await File.WriteAllBytesAsync(localPath, data);
 
             CurrentImageData = data; CurrentImagePath = localPath;
@@ -156,7 +158,12 @@ public partial class PidSearchViewModel : ObservableObject
         Directory.CreateDirectory(dest);
         var dialog = new SaveFileDialog { Filter = $"图片|*.{ext}", FileName = $"{Pid}_p{Page}.{ext}", InitialDirectory = dest };
         if (dialog.ShowDialog() == true)
-            try { File.WriteAllBytes(dialog.FileName, CurrentImageData); SnackbarHelper.Show("保存成功", dialog.FileName); }
+            try
+            {
+                File.WriteAllBytes(dialog.FileName, CurrentImageData);
+                _db.Insert(new ArtworkRecord { Pid = Pid, FilePath = dialog.FileName, FileSize = CurrentImageData.Length });
+                SnackbarHelper.Show("保存成功", dialog.FileName);
+            }
             catch (Exception ex) { _logger.LogError(ex, "保存失败"); SnackbarHelper.Show("错误", "保存失败", "Error"); }
     }
 

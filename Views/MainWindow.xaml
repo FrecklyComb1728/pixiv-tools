@@ -46,6 +46,12 @@
                     </ListBoxItem>
                     <ListBoxItem Padding="8,7" Margin="0,1">
                         <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#x1F5BC;" FontSize="12" Width="22" TextAlignment="Center"/>
+                            <TextBlock Text=" 画廊" FontSize="12"/>
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem Padding="8,7" Margin="0,1">
+                        <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#x2139;" FontSize="12" Width="22" TextAlignment="Center"/>
                             <TextBlock Text=" 关于" FontSize="12"/>
                         </StackPanel>

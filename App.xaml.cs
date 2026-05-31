@@ -17,15 +17,18 @@ public partial class App : System.Windows.Application
         services.AddSingleton<ConfigService>();
         services.AddSingleton<PixivApiService>();
         services.AddSingleton<ImageCacheService>();
+        services.AddSingleton<ArtworkDatabase>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<PidSearchViewModel>();
         services.AddSingleton<RandomPicViewModel>();
         services.AddSingleton<BatchDownloadViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<GalleryViewModel>();
         services.AddTransient<PidSearchTab>();
         services.AddTransient<RandomPicTab>();
         services.AddTransient<BatchDownloadTab>();
         services.AddTransient<SettingsTab>();
+        services.AddTransient<GalleryTab>();
         services.AddTransient<MainWindow>();
 
         var sp = services.BuildServiceProvider();
